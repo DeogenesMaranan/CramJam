@@ -50,9 +50,9 @@ class Account:
         """Create a 'users' table if it doesn't exist."""
         create_table_query = """
         CREATE TABLE IF NOT EXISTS users (
-            username VARCHAR(255) PRIMARY KEY,
-            email VARCHAR(255) NOT NULL,
-            password VARCHAR(255) NOT NULL
+            username VARCHAR(50) PRIMARY KEY,
+            email VARCHAR(50) NOT NULL,
+            password VARCHAR(50) NOT NULL
         )
         """
         self.cursor = self.db.cursor()  # Create a new cursor for the current database connection

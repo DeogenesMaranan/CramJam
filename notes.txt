@@ -1,22 +1,29 @@
-The tkinter package (“Tk interface”) is the standard Python interface to the Tcl/Tk GUI toolkit. Both Tk and tkinter are available on most Unix platforms, including macOS, as well as on Windows systems.
+CHAPTER 1
 
-Running python -m tkinter from the command line should open a window demonstrating a simple Tk interface, letting you know that tkinter is properly installed on your system, and also showing what version of Tcl/Tk is installed, so you can read the Tcl/Tk documentation specific to that version.
+- **Digital computer:** A machine that carries out instructions to perform tasks for people.
+- **Program:** A sequence of instructions that describe how to perform a specific task.
+- **Electronic circuits:** The components within a computer that can recognize and execute a limited set of simple instructions.
+- **Machine Language:** The primitive instructions of a computer, forming a language to communicate with the machine.
+- **Structured Computer Organization:** An approach to designing computer systems systematically and in an organized manner.
 
-Tkinter supports a range of Tcl/Tk versions, built either with or without thread support. The official Python binary release bundles Tcl/Tk 8.6 threaded. See the source code for the _tkinter module for more information about supported versions.
+**1.1.1 Languages, Levels, and Virtual Machines**
 
-Tkinter is not a thin wrapper, but adds a fair amount of its own logic to make the experience more pythonic. This documentation will concentrate on these additions and changes, and refer to the official Tcl/Tk documentation for details that are unchanged.
-Architecture
-Tcl/Tk is not a single library but rather consists of a few distinct modules, each with separate functionality and its own official documentation. Python’s binary releases also ship an add-on module together with it.
+- **Translation:** The process of replacing each instruction with an equivalent sequence of instructions.
+- **L1:** New instructions designed to be more convenient for people.
+- **L0:** Built-in machine instructions.
+- **Interpretation:** The process of carrying out data input by examining each instruction and executing the equivalent sequence without translation.
+- **Interpreter:** The component responsible for carrying out the program's control of the computer.
 
-Tcl
-Tcl is a dynamic interpreted programming language, just like Python. Though it can be used on its own as a general-purpose programming language, it is most commonly embedded into C applications as a scripting engine or an interface to the Tk toolkit. The Tcl library has a C interface to create and manage one or more instances of a Tcl interpreter, run Tcl commands and scripts in those instances, and add custom commands implemented in either Tcl or C. Each interpreter has an event queue, and there are facilities to send events to it and process them. Unlike Python, Tcl’s execution model is designed around cooperative multitasking, and Tkinter bridges this difference (see Threading model for details).
+**1.1.2 Contemporary Multilevel Machines**
 
-Tk
-Tk is a Tcl package implemented in C that adds custom commands to create and manipulate GUI widgets. Each Tk object embeds its own Tcl interpreter instance with Tk loaded into it. Tk’s widgets are very customizable, though at the cost of a dated appearance. Tk uses Tcl’s event queue to generate and process GUI events.
-
-Ttk
-Themed Tk (Ttk) is a newer family of Tk widgets that provide a much better appearance on different platforms than many of the classic Tk widgets. Ttk is distributed as part of Tk, starting with Tk version 8.5. Python bindings are provided in a separate module, tkinter.ttk.
-
-Internally, Tk and Ttk use facilities of the underlying operating system, i.e., Xlib on Unix/X11, Cocoa on macOS, GDI on Windows.
-
-When your Python application uses a class in Tkinter, e.g., to create a widget, the tkinter module first assembles a Tcl/Tk command string. It passes that Tcl command string to an internal _tkinter binary module, which then calls the Tcl interpreter to evaluate it. The Tcl interpreter will then call into the Tk and/or Ttk packages, which will in turn make calls to Xlib, Cocoa, or GDI.
+- **Device Level:** At this level, designers work with individual transistors, the lowest-level primitives for computer design.
+- **Six-Level Computer:** Consisting of levels 0 to 5, with each level having a specific role.
+- **Level 5:** Problem-oriented language level, designed for application programmers.
+- **Level 4:** Assembly language level that provides a way for people to write programs.
+- **Assembler:** The program that performs the translation for level 4.
+- **Level 3:** Operating system machine level, a hybrid level with some instructions interpreted by the operating system and others by microprograms.
+- **Level 2:** Instruction Set Architecture level (ISA level), describing the machine's instruction set.
+- **Microprogramming Level:** A level controlling the operation of the data path.
+- **Levels 1-3:** Intended for running interpreters and translators written by system programmers.
+- **Level 1:** Microarchitecture Level.
+- **Level 0:** Digital Logic Level.

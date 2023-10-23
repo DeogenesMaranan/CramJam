@@ -1,6 +1,7 @@
 import openai
 import re
 import pymysql
+import requests
 
 db = pymysql.connect(
     host='localhost',
@@ -10,7 +11,19 @@ db = pymysql.connect(
 )
 
 # Replace with your API key
-api_key = "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"
+api_key = "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"
+
+
+def is_internet_available():
+    try:
+        # Attempt to make a simple HTTP GET request to a known website (e.g., google.com)
+        response = requests.get("https://platform.openai.com/")
+        # Check if the request was successful (status code 200)
+        return response.status_code == 200
+    except requests.ConnectionError:
+        # If there's a connection error, it means there is no internet connection
+        return False
+
 
 def establish_db_connection():
     return pymysql.connect(
@@ -19,6 +32,7 @@ def establish_db_connection():
         password='snHrHYw4',
         database='CramJamDB'
     )
+
 
 def extract_terms_and_definitions(input_text):
     format_pattern = r'^\d+\.\s*(.+?)\s*:\s*(.+)$'
@@ -33,15 +47,18 @@ def extract_terms_and_definitions(input_text):
 
     return terms_and_definitions
 
+
 def create_table_if_not_exists(cursor, table_name, create_table_sql):
     cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} {create_table_sql}")
     db.commit()
 
+
 def create_lessons_table(cursor):
     create_table_sql = """
     CREATE TABLE IF NOT EXISTS lessons (
+        lessonID int PRIMARY KEY AUTO_INCREMENT,
         owner VARCHAR(50),
-        lesson VARCHAR(50) PRIMARY KEY,
+        lesson VARCHAR(50),
         public BOOL,
         FOREIGN KEY (owner) REFERENCES users(username)
     )
@@ -49,13 +66,14 @@ def create_lessons_table(cursor):
     cursor.execute(create_table_sql)
     db.commit()
 
+
 def create_dictionary_table(cursor):
     create_table_sql = """
     CREATE TABLE IF NOT EXISTS dictionary (
-        lesson VARCHAR(50),
+        lessonID int,
         term VARCHAR(50) NOT NULL,
-        definition VARCHAR(255) PRIMARY KEY,
-        FOREIGN KEY (lesson) REFERENCES lessons(lesson)
+        definition VARCHAR(255) NOT NULL,  -- Changed definition to NOT NULL
+        FOREIGN KEY (lessonID) REFERENCES lessons(lessonID)
     )
     """
     cursor.execute(create_table_sql)
@@ -67,12 +85,23 @@ def store_in_database(terms_and_definitions, owner, lesson_title, public):
     with db.cursor() as cursor:
         try:
             create_lessons_table(cursor)
-            sql = "INSERT INTO lessons (owner, lesson, public) VALUES (%s, %s, %s)"
-            cursor.execute(sql, (owner, lesson_title, public))
+            # Insert a new lesson into the 'lessons' table
+            sql_lessons = "INSERT INTO lessons (owner, lesson, public) VALUES (%s, %s, %s)"
+            cursor.execute(sql_lessons, (owner, lesson_title, public))
+            db.commit()
+
+            # Retrieve the lessonID of the inserted lesson
+            lessonID = cursor.lastrowid
 
             create_dictionary_table(cursor)
-            sql = "INSERT INTO dictionary (lesson, term, definition) VALUES (%s, %s, %s)"
-            cursor.executemany(sql, [(lesson_title, term, definition) for term, definition in terms_and_definitions])
+            # Insert terms and definitions into the 'dictionary' table with the lessonID
+            sql_dictionary = "INSERT INTO dictionary (lessonID, term, definition) VALUES (%s, %s, %s)"
+            # Check if the definition already exists before inserting
+            for term, definition in terms_and_definitions:
+                cursor.execute("SELECT definition FROM dictionary WHERE definition = %s", (definition,))
+                existing_definition = cursor.fetchone()
+                if existing_definition is None:
+                    cursor.execute(sql_dictionary, (lessonID, term, definition))
             db.commit()
         except pymysql.MySQLError as e:
             print(f"An error occurred: {e}")
@@ -98,16 +127,19 @@ def generate_dof(learning_material):
     return response.choices[0].text.strip()
 
 
-terms_and_definitions = []
+if is_internet_available():
+    DOF = None
+    terms_and_definitions = []
 
-#while not terms_and_definitions:  # Loop until terms_and_definitions is not empty
+    while not terms_and_definitions:  # Loop until terms_and_definitions is not empty
+        DOF = generate_dof(file_contents)
+        terms_and_definitions = extract_terms_and_definitions(DOF)
 
-DOF = generate_dof(file_contents)
-terms_and_definitions = extract_terms_and_definitions(DOF)
-
-lesson_title = input("Title: ")
-owner = "deo"
-public = 1
-store_in_database(terms_and_definitions, owner, lesson_title, public)
-print(DOF)
-print(terms_and_definitions)
+    lesson_title = input("Title: ")
+    owner = "deo"
+    public = 1
+    store_in_database(terms_and_definitions, owner, lesson_title, public)
+    print(DOF)
+    print(terms_and_definitions)
+else:
+    print("No internet connection.")

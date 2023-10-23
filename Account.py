@@ -6,10 +6,10 @@ class Account:
     def __init__(self):
         self.current_user = None
         self.db = mysql.connector.connect(
-            host="your_mysql_host",
-            user="your_mysql_user",
-            password="your_mysql_password",
-            database="your_database_name"
+            host="localhost",  # Change this to "localhost"
+            user="CramJam",
+            password="snHrHYw4",
+            database="CramJamDB"
         )
         self.cursor = self.db.cursor()
         self.create_users_table()
@@ -39,7 +39,7 @@ class Account:
         return encrypted_password[::-1]
 
     def register(self, username, email, password):
-        """Prompts user for creating account info and stores it in the 'users' table. """
+        """Prompts the user for creating account info and stores it in the 'users' table. """
         while True:
             encrypted_password = self.__encrypt_password(password)
             try:
@@ -52,7 +52,7 @@ class Account:
                 print("Username or email already exists. Please choose a different username or email.")
 
     def login(self, username, password):
-        """Prompts the user to login and checks if it matches a stored user account in the 'users' table. """
+        """Prompts the user to log in and checks if it matches a stored user account in the 'users' table. """
         encrypted_password = self.__encrypt_password(password)
         select_query = "SELECT username, password FROM users WHERE username = %s"
         self.cursor.execute(select_query, (username,))

@@ -1,67 +1,64 @@
-import os
-import time
-import sys
+import mysql.connector
 
 
 class Account:
 
     def __init__(self):
         self.current_user = None
-        self.record = {}
-        self.users = self.load_users
+        self.db = mysql.connector.connect(
+            host="your_mysql_host",
+            user="your_mysql_user",
+            password="your_mysql_password",
+            database="your_database_name"
+        )
+        self.cursor = self.db.cursor()
+        self.create_users_table()
+
+    def create_users_table(self):
+        """Create a 'users' table if it doesn't exist."""
+        create_table_query = """
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            password VARCHAR(255) NOT NULL
+        )
+        """
+        self.cursor.execute(create_table_query)
+        self.db.commit()
 
     @staticmethod
     def __encrypt_password(password):
         """(Private) Encrypts a password using a secret key."""
         __secret_key = "MathintheModernWorld123!@"
         encrypted_password = ""
-        for i, char in enumerate(password):  # Shifts each character by certain amount depending on the '__secret_key'
+        for i, char in enumerate(password):
             shift = ord(__secret_key[i % len(__secret_key)]) - ord('a')
             shifted_char = chr((ord(char) - ord('a') + shift) % 26 + ord('a'))
             encrypted_password += shifted_char
         return encrypted_password[::-1]
 
-    @property
-    def load_users(self):
-        """Loads user account information from the 'accounts' file into the 'users' dict."""
-        file_path = os.path.join(os.getcwd(), 'resources', 'accounts')
-        try:
-            users = {}
-            with open(file_path, 'r') as file:
-                for line in file:
-                    username, encrypted_password = line.strip().split(':')
-                    users[username] = {'password': encrypted_password}
-            return users
-        except FileNotFoundError:
-            print("The 'accounts' file is missing.")
-            print("Please download the latest version of the Repository")
-            time.sleep(3)
-            sys.exit(1002)
-
-    def register(self):
-        """Prompts user for creating account info and stores it in 'users' dict and 'accounts' file. """
+    def register(self, username, email, password):
+        """Prompts user for creating account info and stores it in the 'users' table. """
         while True:
-            username = input("Enter your username: ")
-            if username in self.users:
-                print("Username already exists. Please choose a different username.")
-            else:
-                break
-        password = input("Enter a password: ")
-        encrypted_password = self.__encrypt_password(password)
-        self.users[username] = {'password': encrypted_password}
-        file_path = os.path.join(os.getcwd(), 'resources', "accounts")
-        with open(file_path, 'a') as file:
-            file.write(f"{username}:{encrypted_password}\n")
-        print("Registration successful.")
-        return username
+            encrypted_password = self.__encrypt_password(password)
+            try:
+                insert_query = "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)"
+                self.cursor.execute(insert_query, (username, email, encrypted_password))
+                self.db.commit()
+                print("Registration successful.")
+                return username
+            except mysql.connector.IntegrityError:
+                print("Username or email already exists. Please choose a different username or email.")
 
-    def login(self):
-        """Prompts the user to login and checks if it matches a stored user account in the 'user' dict. """
-        username = input("Enter your username: ")
-        password = input("Enter your password: ")
+    def login(self, username, password):
+        """Prompts the user to login and checks if it matches a stored user account in the 'users' table. """
         encrypted_password = self.__encrypt_password(password)
-        if username in self.users and self.users[username]['password'] == encrypted_password:
+        select_query = "SELECT username, password FROM users WHERE username = %s"
+        self.cursor.execute(select_query, (username,))
+        result = self.cursor.fetchone()
+        if result and result[1] == encrypted_password:
             print(f"\nWelcome, {username}!")
             return username
         else:
-            print("Invalid username or password..")
+            print("Invalid username or password.")

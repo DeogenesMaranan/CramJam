@@ -107,7 +107,7 @@ def store_in_database(terms_and_definitions, owner, lesson_title, public):
 
 
 # Learning material
-with open("notes.txt", 'r', encoding='utf-8') as file:
+with open("Assets/notes.txt", 'r', encoding='utf-8') as file:
     file_contents = file.read()
 
 

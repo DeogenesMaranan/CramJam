@@ -22,7 +22,7 @@ y = (root.winfo_screenheight()//2) - (height//2)
 root.geometry("{}x{}+{}+{}".format(width, height, x, y))
 
 root.title("CramJam")
-root.iconbitmap("Logo.ico")
+root.iconbitmap("Assets/Logo.ico")
 
 # Create frames
 login_frame = Frame(root)
@@ -41,7 +41,7 @@ show_frame(login_frame)
 # SignUp Frame ----------------------------------------------
 
 # Load images
-signup_background_img = PhotoImage(file="signup_background.png")
+signup_background_img = PhotoImage(file="Assets/signup_background.png")
 
 # Keep references to the images
 signup_background_label = Label(signup_frame, image=signup_background_img)
@@ -56,10 +56,10 @@ signup_entry_username = Entry(signup_frame, bd=0, bg="#d9d9d9", highlightthickne
 signup_entry_username.place(x=325, y=332.5, width=250, height=30)
 
 # Load images for buttons
-img_reg = PhotoImage(file="button_register.png")
-img_log1 = PhotoImage(file="button_login1.png")
-img_hide1 = PhotoImage(file="password_hide1.png")
-img_show1 = PhotoImage(file="password_show1.png")
+img_reg = PhotoImage(file="Assets/button_register.png")
+img_log1 = PhotoImage(file="Assets/button_login1.png")
+img_hide1 = PhotoImage(file="Assets/password_hide1.png")
+img_show1 = PhotoImage(file="Assets/password_show1.png")
 
 # Create and place buttons
 register_button = Button(signup_frame, image=img_reg, borderwidth=0, highlightthickness=0, relief="flat", bg="#d9d9d9", command=lambda: account.register(signup_entry_email.get(), signup_entry_username.get(), signup_entry_password.get()))
@@ -101,7 +101,7 @@ login1_button.place(x=530, y=80, width=90, height=20)
 login_frame.configure(bg="#d9d9d9")
 
 # Load images
-login_background_img = PhotoImage(file="login_background.png")
+login_background_img = PhotoImage(file="Assets/login_background.png")
 
 # Keep references to the images
 login_background_label = Label(login_frame, image=login_background_img)
@@ -112,10 +112,10 @@ login_entry_username = Entry(login_frame, bd=0, bg="#d9d9d9", highlightthickness
 login_entry_username.place(x=325, y=273, width=250, height=30)
 
 # Load images for buttons
-img_sign = PhotoImage(file="button_signup.png")
-img_log0 = PhotoImage(file="button_login0.png")
-img_hide = PhotoImage(file="password_hide.png")
-img_show = PhotoImage(file="password_show.png")
+img_sign = PhotoImage(file="Assets/button_signup.png")
+img_log0 = PhotoImage(file="Assets/button_login0.png")
+img_hide = PhotoImage(file="Assets/password_hide.png")
+img_show = PhotoImage(file="Assets/password_show.png")
 
 # Create and place buttons
 login0_button = Button(login_frame, image=img_log0, borderwidth=0, highlightthickness=0, relief="flat", bg="#d9d9d9", command=lambda: account.login(login_entry_username.get(), login_entry_password.get()))

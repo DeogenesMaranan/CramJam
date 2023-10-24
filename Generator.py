@@ -11,7 +11,7 @@ db = pymysql.connect(
 )
 
 # Replace with your API key
-api_key = "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"
+api_key = "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"
 
 
 def is_internet_available():
@@ -46,11 +46,6 @@ def extract_terms_and_definitions(input_text):
             terms_and_definitions.append((term.strip(), definition.strip()))
 
     return terms_and_definitions
-
-
-def create_table_if_not_exists(cursor, table_name, create_table_sql):
-    cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} {create_table_sql}")
-    db.commit()
 
 
 def create_lessons_table(cursor):

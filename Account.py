@@ -1,10 +1,8 @@
 import pymysql
 
 
-class Account:
-
+class Database:
     def __init__(self):
-        self.current_user = None
         self.db = None
         self.cursor = None
         self.connect_to_database()
@@ -21,9 +19,8 @@ class Account:
             )
             self.cursor = self.db.cursor()
         except pymysql.OperationalError as e:
-            if e.args[0] == 1049:  # MySQL error code 1049 corresponds to "Unknown database"
+            if e.args[0] == 1049:
                 self.create_database()
-                # Reconnect to the newly created database
                 self.db = pymysql.connect(
                     host="localhost",
                     user="CramJam",
@@ -32,7 +29,7 @@ class Account:
                 )
                 self.cursor = self.db.cursor()
             else:
-                raise  # Re-raise the exception for other operational errors
+                raise
 
     def create_database(self):
         """Create the database if it doesn't exist."""
@@ -44,7 +41,7 @@ class Account:
         self.cursor = self.db.cursor()
         create_database_query = "CREATE DATABASE IF NOT EXISTS CramJamDB"
         self.cursor.execute(create_database_query)
-        self.cursor.close()  # Close the cursor after creating the database
+        self.cursor.close()
 
     def create_users_table(self):
         """Create a 'users' table if it doesn't exist."""
@@ -55,26 +52,30 @@ class Account:
             password VARCHAR(50) NOT NULL
         )
         """
-        self.cursor = self.db.cursor()  # Create a new cursor for the current database connection
+        self.cursor = self.db.cursor()
         self.cursor.execute(create_table_query)
         self.db.commit()
 
+
+class Account:
+    def __init__(self):
+        self.current_user = None
+        self.db_manager = Database()
+
     def register(self, email, username, password):
-        """Prompts the user for creating account info and stores it in the 'users' table. """
         try:
             insert_query = "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)"
-            self.cursor.execute(insert_query, (username, email, password))
-            self.db.commit()
+            self.db_manager.cursor.execute(insert_query, (username, email, password))
+            self.db_manager.db.commit()
             print("Registration successful.")
             return username
         except pymysql.IntegrityError:
             print("Username or email already exists. Please choose a different username or email.")
 
     def login(self, username, password):
-        """Prompts the user to log in and checks if it matches a stored user account in the 'users' table. """
         select_query = "SELECT username, password FROM users WHERE username = %s"
-        self.cursor.execute(select_query, (username,))
-        result = self.cursor.fetchone()
+        self.db_manager.cursor.execute(select_query, (username,))
+        result = self.db_manager.cursor.fetchone()
         if result and result[1] == password:
             print(f"\nWelcome, {username}!")
             return username
